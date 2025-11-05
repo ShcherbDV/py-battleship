@@ -57,14 +57,13 @@ class Ship:
 
 
 class Battleship:
-    field = {}
-
     def __init__(self, ships: list[tuple]) -> None:
         self.ships = [Ship(start, end) for start, end in ships]
         self.field = {
             (deck.row, deck.column):
                 ship for ship in self.ships for deck in ship.decks
         }
+        self._validate_field()
 
     def fire(self, location: tuple) -> tuple | str:
         if location in self.field:
@@ -84,8 +83,7 @@ class Battleship:
                 elif ship.is_drowned:
                     grid[deck.row][deck.column] = "x"
         for i in range(10):
-            print(grid[i])
-            print(" ")
+            print(" ".join(grid[i]))
 
     def _validate_field(self) -> None:
         if len(self.ships) != 10:
@@ -101,9 +99,12 @@ class Battleship:
 
         occupied = set()
         for ship in self.ships:
-            for x_coord, y_coord in ship.decks:
+            for deck in ship.decks:
+                x_coord = deck.row
+                y_coord = deck.column
                 for dx in [-1, 0, 1]:
                     for dy in [-1, 0, 1]:
                         if (x_coord + dx, y_coord + dy) in occupied:
                             raise ValueError("The ships can't be so close!")
-            occupied.update(ship.decks)
+            coords = [(deck.row, deck.column) for deck in ship.decks]
+            occupied.update(coords)
